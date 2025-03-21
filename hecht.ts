@@ -195,6 +195,33 @@ class Player {
                             explosions.push(new Explosion(enemy.x - 50, enemy.y - 50, enemy.width, enemy.height));
                             gameEnd(true);
                         }
+                        if (enemy.type === EnemyType.TIEFIGHTER) {
+                            // maybe spawn powerup
+                            let irand = Math.random();
+                            if (irand > 0.5) {
+                                let t: GameObjectType;
+                                switch (Math.floor(Math.random() * 3)) {
+                                    case 0:
+                                        if (this.lives < 5) {
+                                            t = GameObjectType.SCHNAPPS;
+                                        } else {
+                                            t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                                        }
+                                        break;
+                                    case 1:
+                                        if (this.shields < 5) {
+                                            t = GameObjectType.SHIELD;
+                                        } else {
+                                            t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                                        }
+                                        break;
+                                    case 2:
+                                        t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                                        break;
+                                }
+                                objects.push(new GameObject(enemy.x, enemy.y, t));
+                            }
+                        }
                     }
                     // Remove bullet
                     this.bullets.splice(this.bullets.indexOf(bullet), 1);
@@ -466,11 +493,11 @@ class GameObject {
     type: GameObjectType;
     image: HTMLImageElement;
 
-    constructor(x: number, y: number, width: number, height: number, type: number) {
+    constructor(x: number, y: number, type: number) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
+        this.width = 30;
+        this.height = 30;
         this.type = type;
         this.image = new Image();
         switch (this.type) {
@@ -485,6 +512,7 @@ class GameObject {
                 break;
             case GameObjectType.SABER:
                 this.image.src = 'img/lightsaber.png';
+                this.width = 50;
                 break;
             case GameObjectType.R2D2:
                 this.image.src = 'img/r2d2.png';
@@ -667,10 +695,8 @@ function spawnEnemy(t: EnemyType, elapsedTime: number) {
 // Initialize objects
 let objects: GameObject[] = [];
 function spawnObject() {
-    const width = 30;
-    const height = 30;
     const x = canvas.width;
-    const y = Math.random() * (canvas.height - height - 25) + 25;
+    const y = Math.random() * (canvas.height - 55) + 25;
     let type: GameObjectType;
     let availableNormalTypes = normalObjectTypes;
     if (player.lives == 5) availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.SCHNAPPS);
@@ -690,7 +716,7 @@ function spawnObject() {
     } else {
         type = availableNormalTypes[Math.floor(Math.random() * availableNormalTypes.length)];
     }
-    objects.push(new GameObject(x, y, width, height, type));
+    objects.push(new GameObject(x, y, type));
 }
 
 function update() {

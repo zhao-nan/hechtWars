@@ -1,32 +1,4 @@
 console.log('May the pike be with you!');
-let audio = new Audio('Cantina.mp3');
-function toggleAudio() {
-    if (audio.paused) {
-        audio.play();
-    }
-    else {
-        audio.pause();
-    }
-}
-function resetAudio() {
-    const paused = audio.paused;
-    audio.pause();
-    audio = new Audio('Cantina.mp3');
-    if (!paused)
-        audio.play();
-}
-function vaderAudio() {
-    const paused = audio.paused;
-    audio.pause();
-    audio = new Audio('march.mp3');
-    if (!paused)
-        audio.play();
-}
-// Add event listener to restart the song when it ends
-audio.addEventListener('ended', () => {
-    audio.currentTime = 0;
-    audio.play();
-});
 class Player {
     constructor(x, y, width, height, speed) {
         this.x = x;
@@ -196,6 +168,35 @@ class Player {
                             explosions.push(new Explosion(enemy.x + 50, enemy.y - 50, enemy.width, enemy.height));
                             explosions.push(new Explosion(enemy.x - 50, enemy.y - 50, enemy.width, enemy.height));
                             gameEnd(true);
+                        }
+                        if (enemy.type === EnemyType.TIEFIGHTER) {
+                            // maybe spawn powerup
+                            let irand = Math.random();
+                            if (irand > 0.5) {
+                                let t;
+                                switch (Math.floor(Math.random() * 3)) {
+                                    case 0:
+                                        if (this.lives < 5) {
+                                            t = GameObjectType.SCHNAPPS;
+                                        }
+                                        else {
+                                            t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                                        }
+                                        break;
+                                    case 1:
+                                        if (this.shields < 5) {
+                                            t = GameObjectType.SHIELD;
+                                        }
+                                        else {
+                                            t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                                        }
+                                        break;
+                                    case 2:
+                                        t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                                        break;
+                                }
+                                objects.push(new GameObject(enemy.x, enemy.y, t));
+                            }
                         }
                     }
                     // Remove bullet
@@ -435,11 +436,11 @@ var GameObjectType;
 const rareObjectTypes = [GameObjectType.YODA, GameObjectType.R2D2, GameObjectType.LEIA, GameObjectType.SABER];
 const normalObjectTypes = [GameObjectType.DISC, GameObjectType.SCHNAPPS, GameObjectType.BLASTER, GameObjectType.SPEEDUP, GameObjectType.SHIELD, GameObjectType.DISC];
 class GameObject {
-    constructor(x, y, width, height, type) {
+    constructor(x, y, type) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
+        this.width = 30;
+        this.height = 30;
         this.type = type;
         this.image = new Image();
         switch (this.type) {
@@ -454,6 +455,7 @@ class GameObject {
                 break;
             case GameObjectType.SABER:
                 this.image.src = 'img/lightsaber.png';
+                this.width = 50;
                 break;
             case GameObjectType.R2D2:
                 this.image.src = 'img/r2d2.png';
@@ -595,11 +597,10 @@ function spawnEnemy(t, elapsedTime) {
         height = 100;
     }
     else if (t === EnemyType.VADER) {
-        lives = 500;
+        lives = 750;
         speed = 0.1;
         width = 100;
         height = 100;
-        vaderAudio();
     }
     const x = canvas.width;
     const y = Math.random() * (canvas.height - height - 25) + 25;
@@ -608,10 +609,8 @@ function spawnEnemy(t, elapsedTime) {
 // Initialize objects
 let objects = [];
 function spawnObject() {
-    const width = 30;
-    const height = 30;
     const x = canvas.width;
-    const y = Math.random() * (canvas.height - height - 25) + 25;
+    const y = Math.random() * (canvas.height - 55) + 25;
     let type;
     let availableNormalTypes = normalObjectTypes;
     if (player.lives == 5)
@@ -634,7 +633,7 @@ function spawnObject() {
     else {
         type = availableNormalTypes[Math.floor(Math.random() * availableNormalTypes.length)];
     }
-    objects.push(new GameObject(x, y, width, height, type));
+    objects.push(new GameObject(x, y, type));
 }
 function update() {
     if (player.lives <= 0) {
@@ -728,7 +727,6 @@ function draw() {
     });
     // Draw audio icon
     const audioIcon = new Image();
-    audioIcon.src = audio.paused ? 'img/speaker-off.png' : 'img/speaker.png';
     audioIcon.onload = () => {
         ctx.drawImage(audioIcon, canvas.width - 40, 10, 300, 300);
     };
@@ -741,11 +739,6 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => {
     keysPressed.delete(e.key);
-});
-window.addEventListener('keypress', (e) => {
-    if (e.key === 'a') {
-        toggleAudio();
-    }
 });
 function gameEnd(win) {
     gameOver = true;
@@ -817,7 +810,6 @@ function resetGame() {
     enemies = [];
     objects = [];
     gameOver = false;
-    resetAudio();
 }
 // Main game loop
 function gameLoop() {
