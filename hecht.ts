@@ -182,11 +182,11 @@ function spawn() {
             enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 20, strength));
             lastSTSpawnTime = currentTime;
         }
-        if (elapsedTime > 0 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
+        if (elapsedTime > 60000 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
             enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50) + 20));
             lastTieSpawnTime = currentTime;
         }
-        if (elapsedTime > 0 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
+        if (elapsedTime > 120000 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
             enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
             lastSDSpawnTime = currentTime;
         }
