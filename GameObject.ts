@@ -31,9 +31,11 @@ export class GameObject {
             case GameObjectType.SABER:
                 this.image.src = 'img/lightsaber.png';
                 this.width = 50;
+                this.height = 40;
                 break;
             case GameObjectType.R2D2:
                 this.image.src = 'img/r2d2.png';
+                this.width = 25;
                 break;
             case GameObjectType.YODA:
                 this.image.src = 'img/yoda.png';

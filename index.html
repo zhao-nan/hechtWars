@@ -4,91 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Hecht Wars</title>
-    <style>
-        body {
-            background: #00001B; /* Dark blue color */
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-        }
-        canvas {
-            background: #000;
-        }
-        #energy-bar-container {
-            width: 40px;
-            height: 700px;
-            background-color: black;
-            border: solid #b4b4b4;
-            position: relative;
-        }
-        #energy-bar {
-            width: 100%;
-            background-color: #A5FF81;
-            height: 0;
-            position: absolute;
-            bottom: 0;
-            transition: height 0.3s;
-        }
-        #game-container {
-            margin: 120px auto 0;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .game-overview {
-            text-align: center;
-            margin-top: 20px;
-            color: aliceblue;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        header {
-            display: flex;
-            font-size: 15px;
-            font-weight: bold;
-            color: white;
-            text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-            width: 100%;
-            text-align: center;
-            background-image: linear-gradient(
-                to right,
-                orange,
-                lightcoral,
-                rgb(122, 107, 255),
-                rebeccapurple,
-                lightblue,
-                lightgreen
-            );
-            top: 0;
-            position: fixed;
-            justify-content: center;
-            padding: auto;
-            margin: auto;
-        }
-        .keys {
-            display: inline-block;
-            font-size: medium;
-            color: #333;
-            background-color: #f7f7f7;
-            border: 1px solid #b4b4b4;
-            padding: 5px 10px;
-            margin: 5px;
-            border-radius: 5px;
-            box-shadow: 0 3px #999;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
     <header>
         <h1 style="text-align: center; color: aliceblue;">Hecht Wars</h1>
     </header>
     <div id="game-container">
-        <div id="energy-bar-container">
-            <div id="energy-bar"></div>
+        <div id="status-bar-container">
+            <div id="lives-bar"></div>
+            <div id="disc-container"></div>
+            <div id="rares-container"></div>
         </div>
-        <canvas id="gameCanvas" width="1200" height="700"></canvas>
+        <div style="display: flex;">
+            <div id="energy-bar-container">
+                <div id="energy-bar"></div>
+            </div>
+            <canvas id="gameCanvas" width="1200" height="700"></canvas>
+        </div>
     </div>
     <div class="game-overview">
         <p>Das Universum braucht dich, junger Hecht! Schwimm durch Raum und Zeit und erledige die

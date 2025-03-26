@@ -14,7 +14,6 @@ export class Player {
         this.lastShotTime = 0;
         this.lastDiscTime = 0;
         this.lives = 2;
-        this.points = 0;
         this.inventory = [];
         this.canGrab = false;
         this.boom = 1;

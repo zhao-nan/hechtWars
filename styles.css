@@ -1,0 +1,119 @@
+body {
+    background: #00001B; /* Dark blue color */
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+canvas {
+    background: #000;
+}
+#energy-bar-container {
+    width: 40px;
+    height: 700px;
+    background-color: black;
+    border: solid #b4b4b4;
+    border-radius: 5px;
+    position: relative;
+}
+#energy-bar {
+    width: 100%;
+    background-color: #A5FF81;
+    height: 0;
+    position: absolute;
+    bottom: 0;
+    transition: height 0.3s;
+}
+#game-container {
+    margin: 120px auto 0;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+#status-bar-container {
+    width: 1240px; /* Same width as the canvas */
+    height: 36px;
+    background-color: black;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    z-index: 10;
+}
+#lives-bar {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25%;
+    border: solid palevioletred;
+    border-radius: 5px;
+}
+#disc-container {
+    height: 100%;
+    border-radius: 5px;
+    border: solid burlywood;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+}
+#disc-container img {
+    margin: 0 10px;
+}
+#rares-container {
+    height: 100%;
+    border-radius: 5px;
+    border: solid purple;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 15%;
+}
+#rares-container img {
+    margin: 0 10px;
+}
+.game-overview {
+    text-align: center;
+    margin-top: 20px;
+    color: aliceblue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+header {
+    display: flex;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    width: 100%;
+    text-align: center;
+    background-image: linear-gradient(
+        to right,
+        orange,
+        lightcoral,
+        rgb(122, 107, 255),
+        rebeccapurple,
+        lightblue,
+        lightgreen
+    );
+    top: 0;
+    position: fixed;
+    justify-content: center;
+    padding: auto;
+    margin: auto;
+    z-index: 100;
+}
+.keys {
+    display: inline-block;
+    font-size: medium;
+    color: #333;
+    background-color: #f7f7f7;
+    border: 1px solid #b4b4b4;
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 5px;
+    box-shadow: 0 3px #999;
+    text-align: center;
+}

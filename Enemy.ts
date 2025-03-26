@@ -1,7 +1,7 @@
 import {Bullet} from './Bullet.js';
 import {Player} from './Player.js';
 import {Explosion} from './Explosion.js';
-import {enemies, explosions, player} from './hecht.js';
+import {enemies, explosions} from './hecht.js';
 
 export abstract class Enemy {
     x: number;
@@ -75,7 +75,6 @@ export abstract class Enemy {
         enemies.splice(enemies.indexOf(this), 1);
         const explosion = new Explosion(this.x, this.y, this.width, this.height);
         explosions.push(explosion);
-        player.points += Math.floor(this.initLives * 10);
     }
 
     isCollidingWith(player: Player) {

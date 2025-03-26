@@ -1,5 +1,5 @@
 import { Explosion } from './Explosion.js';
-import { enemies, explosions, player } from './hecht.js';
+import { enemies, explosions } from './hecht.js';
 export class Enemy {
     constructor(x, y) {
         this.bullets = [];
@@ -42,7 +42,6 @@ export class Enemy {
         enemies.splice(enemies.indexOf(this), 1);
         const explosion = new Explosion(this.x, this.y, this.width, this.height);
         explosions.push(explosion);
-        player.points += Math.floor(this.initLives * 10);
     }
     isCollidingWith(player) {
         return this.x < player.x + player.width &&

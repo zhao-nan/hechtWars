@@ -121,6 +121,7 @@ function update() {
             enemies.splice(i, 1);
         }
     }
+    updateStatusBar();
 }
 function playerInput() {
     if (keysPressed.has('ArrowUp')) {
@@ -165,8 +166,7 @@ function spawn() {
             && player.inventory.some(item => item.type === GameObjectType.LEIA)
             && player.inventory.some(item => item.type === GameObjectType.SABER)
             && player.inventory.some(item => item.type === GameObjectType.R2D2)
-            && player.inventory.some(item => item.type === GameObjectType.YODA)
-            && player.points > 10000) {
+            && player.inventory.some(item => item.type === GameObjectType.YODA)) {
             enemies.push(new Vader(canvas.width, Math.random() * (canvas.height - 100)));
         }
     }
@@ -186,22 +186,39 @@ function draw() {
     objects.forEach(o => o.draw(ctx));
     // Draw enemies
     enemies.forEach(e => e.draw(ctx));
-    // Draw status bar
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'left';
-    const offset = 20;
-    if (player.lives > 0)
-        ctx.fillText("❤️ ".repeat(player.lives), offset, 20);
-    ctx.fillText(`Points: ${player.points}`, offset + 150, 20);
-    player.inventory.forEach((item, index) => {
-        ctx.drawImage(item.image, offset + 300 + index * 40, 5, 30, 30);
-    });
-    // Draw audio icon
-    const audioIcon = new Image();
-    audioIcon.onload = () => {
-        ctx.drawImage(audioIcon, canvas.width - 40, 10, 300, 300);
-    };
+}
+function updateStatusBar() {
+    const livesBar = document.getElementById('lives-bar');
+    if (livesBar) {
+        if (player.lives > 0) {
+            const redHearts = "❤️  ".repeat(player.lives);
+            const blackHearts = "🖤  ".repeat(5 - player.lives);
+            livesBar.textContent = redHearts + blackHearts;
+        }
+    }
+    const discContainer = document.getElementById('disc-container');
+    if (discContainer) {
+        const discCount = player.inventory.filter(item => item.type === GameObjectType.DISC).length;
+        discContainer.innerHTML = '';
+        for (let i = 0; i < discCount; i++) {
+            const discImage = document.createElement('img');
+            discImage.src = 'img/disc.png';
+            discImage.style.width = '30px';
+            discImage.style.height = '30px';
+            discContainer.appendChild(discImage);
+        }
+    }
+    const raresContainer = document.getElementById('rares-container');
+    if (raresContainer) {
+        raresContainer.innerHTML = '';
+        player.inventory.filter(item => rareObjectTypes.includes(item.type)).forEach(item => {
+            const rareImage = document.createElement('img');
+            rareImage.src = item.image.src;
+            rareImage.style.width = item.width.toString() + 'px';
+            rareImage.style.height = item.height.toString() + 'px';
+            raresContainer.appendChild(rareImage);
+        });
+    }
 }
 // Set to store currently pressed keys
 const keysPressed = new Set();
@@ -272,13 +289,13 @@ function resetGame() {
     player.x = 50;
     player.y = canvas.height / 2 - 25;
     player.lives = 2;
-    player.points = 0;
     player.inventory = [];
     player.canGrab = false;
     player.boom = 1;
     player.dakka = 1;
     player.bullets = [];
     player.shields = 0;
+    player.energy = 10;
     gameStartTime = Date.now();
     //clear enemies and objects
     enemies.length = 0;
