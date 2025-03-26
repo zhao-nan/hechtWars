@@ -1,622 +1,21 @@
+import { Bullet } from './Bullet.js';
+import { GameObject, GameObjectType, rareObjectTypes, normalObjectTypes } from './GameObject.js';
+import { Player } from './Player.js';
+import { Enemy} from './Enemy.js';
+import { Stormtrooper } from './Stormtrooper.js';
+import { Tiefighter } from './Tiefighter.js';
+import { StarDest } from './StarDest.js';
+import { Vader } from './Vader.js';
+import { Star } from './Star.js';
+import { Explosion } from './Explosion.js';
 
 console.log('May the pike be with you!');
 
-class Player {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    speed: number;
-    bullets: Bullet[];
-    isGrabbing: boolean;
-    lastShotTime: number;
-    lastDiscTime: number;
-    lives: number;
-    points: number;
-    inventory: GameObject[];
-    canGrab: boolean;
-    boom: number;
-    dakka: number;
-    shields: number;
-    shieldFlash: boolean;
-    damageFlash: boolean;
-    isShooting: boolean;
-
-    constructor(x: number, y: number, width: number, height: number, speed: number) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.speed = speed;
-        this.bullets = [];
-        this.isGrabbing = false;
-        this.lastShotTime = 0;
-        this.lastDiscTime = 0;
-        this.lives = 2;
-        this.points = 0;
-        this.inventory = [];
-        this.canGrab = false;
-        this.boom = 1;
-        this.dakka = 1;
-        this.shields = 0;
-        this.shieldFlash = false;
-        this.damageFlash = false;
-        this.isShooting = false;
-    }
-
-    moveUp() {
-        this.y -= this.speed;
-        if (this.y < 20) this.y = 20;
-    }
-
-    moveDown() {
-        this.y += this.speed;
-        if (this.y + this.height > canvas.height - 10) this.y = canvas.height - this.height - 10;
-    }
-
-    shoot() {
-        const currentTime = Date.now();
-        if (currentTime - this.lastShotTime >= 1000 / this.dakka) {
-            this.bullets.push(
-                new Bullet(this.x + this.width, this.y + this.height / 2,
-                    (this.boom + 8)/2, 2 + this.dakka, true, false, this.boom));
-            this.lastShotTime = currentTime;
-            this.isShooting = true;
-            setTimeout(() => this.isShooting = false, 100);
-        }
-    }
-
-    throwDisc() {
-        const currentTime = Date.now();
-        if (currentTime - this.lastDiscTime >= 200) {
-            if (this.inventory.some(item => item.type === GameObjectType.DISC)) {
-                this.bullets.push(
-                    new Bullet(this.x + this.width, this.y + this.height / 2
-                        , 20, 10 + (this.dakka / 2), true, true, 50 + this.boom * 3));
-                const discIndex = this.inventory.findIndex(item => item.type === GameObjectType.DISC);
-                if (discIndex !== -1) {
-                    this.inventory.splice(discIndex, 1);
-                }
-                this.lastDiscTime = currentTime;
-                this.isShooting = true;
-                setTimeout(() => this.isShooting = false, 200);
-            }
-        }
-    }
-
-    grab() {
-        this.isGrabbing = true;
-    }
-
-    release() {
-        this.isGrabbing = false;
-    }
-
-    addToInventory(obj: GameObject) {
-        if (rareObjectTypes.some(t => t === obj.type)) {
-            this.inventory.push(obj);
-        } else {
-            switch (obj.type) {
-                case GameObjectType.SCHNAPPS:
-                    if (this.lives < 5) this.lives += 1;
-                    break;
-                case GameObjectType.BLASTER:
-                    this.boom += 1;
-                    break;
-                case GameObjectType.SPEEDUP:
-                    this.dakka += 2/10;
-                    break;
-                case GameObjectType.SHIELD:
-                    if (this.shields < 5) this.shields += 1;
-                    break;
-                case GameObjectType.DISC:
-                    this.inventory.push(obj);
-                    break;
-            }
-        }
-        this.inventory.sort((a, b) => {
-            if (a.type === GameObjectType.DISC) return 1;
-            if (b.type === GameObjectType.DISC) return -1;
-            return a.type - b.type;
-        });
-    }
-    isHitBy(bullet: Bullet) {
-        return this.x < bullet.x + bullet.radius &&
-               this.x + this.width > bullet.x &&
-               this.y < bullet.y + bullet.radius &&
-               this.y + this.height > bullet.y;
-    }
-
-    loseLife(l: number) {
-        this.lives -= l;
-        this.damageFlash = true;
-        setTimeout(() => this.damageFlash = false, 200);
-        if (this.lives <= 0) {
-            explosions.push(new Explosion(this.x, this.y, this.width, this.height));
-        }
-    }
-
-    update() {
-        // Update bullets
-        this.bullets.forEach(bullet => {
-            bullet.x += bullet.speed;
-        });
-
-        // Update explosions
-        explosions.forEach(explosion => explosion.update());
-        explosions = explosions.filter(explosion => explosion.frame < 300);
-
-        // Remove bullets that are off-screen
-        this.bullets = this.bullets.filter(bullet => bullet.x < canvas.width);
-        // Check for collisions with enemies
-        enemies.forEach(enemy => {
-            if (enemy.isCollidingWith(this)) {
-                if (this.shields > 0) {
-                    if (enemy.type === EnemyType.STARDESTROYER) this.shields = 0;
-                    this.shields -= 1;
-                    this.shieldFlash = true;
-                    setTimeout(() => this.shieldFlash = false, 100);
-                } else {
-                    this.loseLife(1);
-                }
-                if (enemy.type === EnemyType.STARDESTROYER) {
-                    this.loseLife(this.lives);
-                } else {
-                    enemies.splice(enemies.indexOf(enemy), 1);
-                    const explosion = new Explosion(enemy.x, enemy.y, enemy.width, enemy.height);
-                    explosions.push(explosion);
-                }
-            }
-            enemy.bullets.forEach(bullet => {
-                if (this.isHitBy(bullet)) {
-                    if (this.shields > 0) {
-                        this.shields = Math.max(0, this.shields - bullet.damage);
-                        this.shieldFlash = true;
-                        setTimeout(() => this.shieldFlash = false, 100);
-                    } else {
-                        this.loseLife(bullet.damage);
-                    }
-                    enemy.bullets.splice(enemy.bullets.indexOf(bullet), 1);
-                }
-            });
-            this.bullets.forEach(bullet => {
-                if (enemy.isHitBy(bullet)) {
-                    enemy.lives -= bullet.damage;
-                    if (enemy.lives <= 0) {
-                        // Remove enemy if lives are 0
-                        enemies.splice(enemies.indexOf(enemy), 1);
-                        this.points += Math.floor(enemy.strength);
-                        explosions.push(new Explosion(enemy.x, enemy.y, enemy.width, enemy.height));
-                        if (enemy.type === EnemyType.VADER) {
-                            explosions.push(new Explosion(enemy.x, enemy.y, enemy.width + 50, enemy.height + 50));
-                            explosions.push(new Explosion(enemy.x + 50, enemy.y + 50, enemy.width, enemy.height));
-                            explosions.push(new Explosion(enemy.x - 50, enemy.y + 50, enemy.width, enemy.height));
-                            explosions.push(new Explosion(enemy.x + 50, enemy.y - 50, enemy.width, enemy.height));
-                            explosions.push(new Explosion(enemy.x - 50, enemy.y - 50, enemy.width, enemy.height));
-                            gameEnd(true);
-                        }
-                        if (enemy.type === EnemyType.TIEFIGHTER) {
-                            // maybe spawn powerup
-                            let irand = Math.random();
-                            if (irand > 0.5) {
-                                let t: GameObjectType;
-                                switch (Math.floor(Math.random() * 3)) {
-                                    case 0:
-                                        if (this.lives < 5) {
-                                            t = GameObjectType.SCHNAPPS;
-                                        } else {
-                                            t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
-                                        }
-                                        break;
-                                    case 1:
-                                        if (this.shields < 5) {
-                                            t = GameObjectType.SHIELD;
-                                        } else {
-                                            t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
-                                        }
-                                        break;
-                                    case 2:
-                                        t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
-                                        break;
-                                }
-                                objects.push(new GameObject(enemy.x, enemy.y, t));
-                            }
-                        }
-                    }
-                    // Remove bullet
-                    this.bullets.splice(this.bullets.indexOf(bullet), 1);
-                }
-            });
-        });
-        // Grab objects
-        this.canGrab = false;
-        objects.forEach(obj => {
-            if (obj.isCloseEnough(this)) {
-                this.canGrab = true;
-            }
-            if (obj.isCloseEnough(this) && this.isGrabbing) {
-                this.addToInventory(obj);
-                objects.splice(objects.indexOf(obj), 1);
-            }
-        });
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        const hechtImage = new Image();
-        hechtImage.src = this.isGrabbing ?'img/hecht-grab.png' : 'img/hecht.png';
-        if (this.isShooting) {
-            hechtImage.src = 'img/hecht-shoot.png';
-        }
-        if (this.damageFlash) {
-            hechtImage.src = 'img/hecht-dmg.png';
-        }
-        ctx.drawImage(hechtImage, this.x, this.y, this.width, this.height);
-
-        // Draw shield
-        for (let i = 0; i < this.shields; i++) {
-            ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2 + 10+3*i, 0, 2 * Math.PI);
-            ctx.strokeStyle = `rgba(50, 50, ${i * 50})`;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-
-        this.bullets.forEach(bullet => bullet.draw(ctx)); 
-
-        // Draw shield flash
-        if (this.shieldFlash) {
-            ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2 + 10, 0, 2 * Math.PI);
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        }
-    }
-}
-
-class Bullet {
-    x: number;
-    y: number;
-    radius: number;
-    speed: number;
-    friendly: boolean;
-    disc: boolean;
-    damage: number;
-
-    constructor(x: number, y: number, radius: number,
-          speed: number, friendly: boolean, disc: boolean, damage: number = 1) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.speed = speed;
-        this.friendly = friendly;
-        this.disc = disc;
-        this.damage = damage;
-    }
-
-    update() {
-        this.x += this.speed;
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        if (this.disc) {
-            let img = new Image();
-            img.src = 'img/disc.png';
-            ctx.drawImage(img, this.x, this.y, this.radius, this.radius);
-        } else {
-            ctx.fillStyle = this.friendly ? 'teal' : 'red';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius / 2, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-    }
-}
-
-enum EnemyType {STORMTROOPER, TIEFIGHTER, STARDESTROYER, VADER}
-
-class Enemy {
-    type: EnemyType;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    speed: number;
-    yspeed: number;
-    initLives: number;
-    lives: number;
-    strength: number;
-    image: HTMLImageElement;
-    bullets: Bullet[] = [];
-    lastShotTime: number = 0;
-    lastSpawnTime: number = 0;
-
-    constructor(type: EnemyType, x: number, y: number, width: number, height: number, speed: number, lives: number) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.speed = speed;
-        this.yspeed = 0;
-        this.initLives = lives;
-        this.lives = lives;
-        this.strength = lives * speed * 10;
-        this.lastShotTime = Date.now();
-        this.lastSpawnTime = Date.now();
-        this.bullets = [];
-        this.type = type;
-        this.image = new Image();
-        switch (this.type) {
-            case EnemyType.STORMTROOPER:
-                this.image.src = 'img/stormtrooper.png';
-                break;
-            case EnemyType.TIEFIGHTER:
-                this.image.src = 'img/Tie.png';
-                break;
-            case EnemyType.STARDESTROYER:
-                this.image.src = 'img/star-destroyer.png';
-                break;
-            case EnemyType.VADER:
-                this.image.src = 'img/darth-vader.png';
-                break;
-        }
-    }
-
-    update() {
-        this.x -= this.speed;
-
-        if (this.type === EnemyType.STARDESTROYER) {
-            this.SDshoot();
-        }
-
-        if (this.type === EnemyType.VADER) {
-            this.VaderShoot();
-            this.vaderSpawn();
-            let rand = Math.floor(Math.random() * 3);
-            if (rand == 0 && this.y < canvas.height - this.height && this.yspeed < 2) {    
-                this.yspeed += 0.05;
-            } else if (rand == 1 && this.y > 25 && this.yspeed > -2) {
-                this.yspeed -= 0.05;
-            }
-            if (this.y > canvas.height - this.height) {
-                this.yspeed = -0.1;
-            }
-            if (this.y < 25) {
-                this.yspeed = 0.1;
-            }
-            this.y += this.yspeed;
-        }
-        
-        if (this.type === EnemyType.TIEFIGHTER) {
-            this.shoot();
-            let rand = Math.floor(Math.random() * 3);
-            if (rand == 0 && this.y < canvas.height - this.height && this.yspeed < 2) {    
-                this.yspeed += 0.1;
-            } else if (rand == 1 && this.y > 25 && this.yspeed > -2) {
-                this.yspeed -= 0.1;
-            }
-            if (this.y > canvas.height - this.height) {
-                this.yspeed = -0.3;
-            }
-            if (this.y < 25) {
-                this.yspeed = 0.3;
-            }
-            this.y += this.yspeed;
-        }
-        this.bullets.forEach(bullet => bullet.update());
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-        this.drawLifeBar(ctx);
-    }
-
-    drawLifeBar(ctx: CanvasRenderingContext2D) {
-        const barWidth = this.width;
-        const barHeight = 5;
-        const barX = this.x;
-        const barY = this.y + this.height + 2; // Position the bar below the enemy
-
-        // Draw the background of the life bar
-        ctx.fillStyle = 'red';
-        ctx.fillRect(barX, barY, barWidth, barHeight);
-
-        // Draw the foreground of the life bar
-        const lifePercentage = this.lives / this.initLives; // Assuming max lives is 10
-        ctx.fillStyle = 'green';
-        ctx.fillRect(barX, barY, barWidth * lifePercentage, barHeight);
-        this.bullets.forEach(bullet => bullet.draw(ctx));
-    }
-
-    shoot() {
-        const now = Date.now();
-        if (now - this.lastShotTime > Math.random() * 1000 + 1750) { 
-            const bullet = new Bullet(this.x + this.width / 2, this.y + this.height, 4, this.speed * (-1) - 3, false, false, 1);
-            this.bullets.push(bullet);
-            this.lastShotTime = now;
-        }
-    }
-
-    SDshoot() {
-        const now = Date.now();
-        if (now - this.lastShotTime > Math.random() * 5000 + 2000) {
-            const bullet = new Bullet(this.x + this.width / 2, this.y + this.height / 2, 10, -4 , false, false, 3);
-            this.bullets.push(bullet);
-            this.lastShotTime = now;
-        }
-    }
-
-    VaderShoot() {
-        const now = Date.now();
-        if (now - this.lastShotTime > Math.random() * 1000 + 2000) {
-            const bullet = new Bullet(this.x + this.width / 2, this.y + this.height / 2, 5, Math.random()*(-10) - 4, false, false, 3);
-            this.bullets.push(bullet);
-            this.lastShotTime = now;
-        }
-    }
-
-    vaderSpawn() {
-        const now = Date.now();
-        if (now - this.lastSpawnTime > Math.random() * 10000 + 5000) {
-            let rand = Math.random();
-            let type = rand >= 0.5 ? EnemyType.STORMTROOPER : EnemyType.TIEFIGHTER;
-            for (let i = 0; i < Math.floor(rand * 22) + 3; i++) {
-                spawnEnemy(type, now - gameStartTime);
-            }
-            this.lastSpawnTime = now;
-        }
-    }
-
-    isCollidingWith(player: Player) {
-        return this.x < player.x + player.width &&
-               this.x + this.width > player.x &&
-               this.y < player.y + player.height &&
-               this.y + this.height > player.y;
-    }
-
-    isHitBy(bullet: Bullet) {
-        return this.x < bullet.x + bullet.radius &&
-               this.x + this.width > bullet.x &&
-               this.y < bullet.y + bullet.radius &&
-               this.y + this.height > bullet.y;
-    }
-}
-
-enum GameObjectType {SCHNAPPS, SHIELD, LEIA, SABER, R2D2, YODA, BLASTER, SPEEDUP, DISC}
-const rareObjectTypes = [GameObjectType.YODA, GameObjectType.R2D2, GameObjectType.LEIA, GameObjectType.SABER];
-const normalObjectTypes = [GameObjectType.DISC, GameObjectType.SCHNAPPS, GameObjectType.BLASTER, GameObjectType.SPEEDUP, GameObjectType.SHIELD, GameObjectType.DISC];
-
-class GameObject {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    type: GameObjectType;
-    image: HTMLImageElement;
-
-    constructor(x: number, y: number, type: number) {
-        this.x = x;
-        this.y = y;
-        this.width = 30;
-        this.height = 30;
-        this.type = type;
-        this.image = new Image();
-        switch (this.type) {
-            case GameObjectType.SCHNAPPS:
-                this.image.src = 'img/schnaps.png';
-                break;
-            case GameObjectType.SHIELD:
-                this.image.src = 'img/shield.png';
-                break;
-            case GameObjectType.LEIA:
-                this.image.src = 'img/leia.png';
-                break;
-            case GameObjectType.SABER:
-                this.image.src = 'img/lightsaber.png';
-                this.width = 50;
-                break;
-            case GameObjectType.R2D2:
-                this.image.src = 'img/r2d2.png';
-                break;
-            case GameObjectType.YODA:
-                this.image.src = 'img/yoda.png';
-                break;
-            case GameObjectType.BLASTER:
-                this.image.src = 'img/blaster.png';
-                break;
-            case GameObjectType.SPEEDUP:
-                this.image.src = 'img/speedcannon.png';
-                break;
-            case GameObjectType.DISC:
-                this.image.src = 'img/disc.png';
-                break;
-        }
-    }
-
-    update() {
-        this.x -= 2; // Move objects to the left
-    }
-
-    isOutOfScreen() {
-        return this.x < 0;
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-    }
-
-    isCloseEnough(player: Player) {
-        const distance = Math.hypot(this.x - player.x, this.y - player.y);
-        return distance < 100; 
-    }
-}
-
-class Star {
-    x: number;
-    y: number;
-    size: number;
-    speed: number;
-
-    constructor(x: number, y: number, size: number, speed: number) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
-        this.speed = speed;
-    }
-
-    update() {
-        this.x -= this.speed;
-        if (this.x < 0) {
-            this.x = canvas.width;
-            this.y = Math.random() * canvas.height;
-        }
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(this.x, this.y, this.size, this.size);
-    }
-}
-
-class Explosion {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    frame: number;
-
-    constructor(x: number, y: number, width: number, height: number) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.frame = 0;
-    }
-
-    update() {
-        this.frame += 1;
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        const colors = ['red', 'orange', 'yellow', 'white'];
-        const duration = 5;
-        colors.forEach((color, index) => {
-            if (this.frame < (4 - index) * duration) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2,
-                     this.width / 5 + (5 - index) * 5, this.height / 5 + (5 - index) * 5,
-                      0, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-        });
-    }
-}
-
 // Initialize the canvas and context
-const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+export const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
 
-const player = new Player(50, canvas.height / 2 - 25, 60, 35, 5);
+export const player = new Player(canvas, 50, canvas.height / 2 - 25, 60, 35, 5);
 let lastSDSpawnTime = 0;
 let lastSTSpawnTime = 0;
 let lastTieSpawnTime = 0;
@@ -656,44 +55,16 @@ document.addEventListener('keydown', function(event) {
 // Initialize stars
 const stars: Star[] = [];
 for (let i = 0; i < 100; i++) {
-    stars.push(new Star(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, Math.random() * 2 + 1));
+    stars.push(new Star(canvas, Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, Math.random() * 2 + 1));
 }
 
-let explosions: Explosion[] = [];
+export const explosions: Explosion[] = [];
 
 // Initialize enemies
-let enemies: Enemy[] = [];
-function spawnEnemy(t: EnemyType, elapsedTime: number) {
-    let timeFactor = Math.floor(1 + elapsedTime / 60000);
-    let lives: number, speed: number, width: number, height: number;
-    if (t === EnemyType.STORMTROOPER) {
-        lives = Math.floor(Math.random() * 5) + 2 + timeFactor;
-        speed = Math.random() * 2 + 1;
-        width = 20 + lives * 2;
-        height = 20 + lives * 2;
-    } else if (t === EnemyType.TIEFIGHTER) {
-        lives = Math.floor(Math.random() * 5) + 2;
-        speed = Math.random() * 5 + 1;
-        width = 30;
-        height = 30;
-    } else if (t === EnemyType.STARDESTROYER) {
-        lives = Math.floor(Math.random() * 50) + 25 + 5*timeFactor;
-        speed = 2;
-        width = 100;
-        height = 100;
-    } else if (t === EnemyType.VADER) {
-        lives = 750;
-        speed = 0.1;
-        width = 100;
-        height = 100;
-    }
-    const x = canvas.width;
-    const y = Math.random() * (canvas.height - height - 25) + 25;
-    enemies.push(new Enemy(t, x, y, width, height, speed, lives));
-}
+export const enemies: Enemy[] = [];
 
 // Initialize objects
-let objects: GameObject[] = [];
+export const objects: GameObject[] = [];
 function spawnObject() {
     const x = canvas.width;
     const y = Math.random() * (canvas.height - 55) + 25;
@@ -724,6 +95,14 @@ function update() {
         gameEnd(false);
     }
     stars.forEach(star => star.update());
+
+    explosions.forEach(explosion => explosion.update());
+    for (let i = explosions.length - 1; i >= 0; i--) {
+        if (explosions[i].isOver) {
+            explosions.splice(i, 1);
+        }
+    }
+
     if (keysPressed.has('ArrowUp')) {
         player.moveUp();
     }
@@ -755,36 +134,46 @@ function update() {
         player.loseLife(1);
     }
 
-    objects = objects.filter(obj => !obj.isOutOfScreen());
+    for (let i = objects.length - 1; i >= 0; i--) {
+        if (objects[i].isOutOfScreen()) {
+            objects.splice(i, 1);
+        }
+    }
     enemies.forEach(enemy => enemy.update());
-    enemies = enemies.filter(enemy => enemy.x + enemy.width > 0);
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        if (enemies[i].x + enemies[i].width < 0) {
+            enemies[i].escape();
+            enemies.splice(i, 1);
+        }
+    }
 }
 
 function spawn() {
     const currentTime = Date.now();
     const elapsedTime = currentTime - gameStartTime;
+    const strength = elapsedTime / 60000;
 
-    if (!enemies.some(e => e.type === EnemyType.VADER)) {
+    if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            spawnEnemy(EnemyType.STORMTROOPER, elapsedTime);
+            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50), strength));
             lastSTSpawnTime = currentTime;
         }
         if (elapsedTime > 60000 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
-            spawnEnemy(EnemyType.TIEFIGHTER, elapsedTime);
+            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50)));
             lastTieSpawnTime = currentTime;
         }
         if (elapsedTime > 120000 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
-            spawnEnemy(EnemyType.STARDESTROYER, elapsedTime);
+            enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
             lastSDSpawnTime = currentTime;
         }
         if (elapsedTime > 240000
-                && !enemies.some(e => e.type === EnemyType.VADER) 
+                && !enemies.some(e => e instanceof Vader) 
                 && player.inventory.some(item => item.type === GameObjectType.LEIA)
                 && player.inventory.some(item => item.type === GameObjectType.SABER)
                 && player.inventory.some(item => item.type === GameObjectType.R2D2)
                 && player.inventory.some(item => item.type === GameObjectType.YODA)
                 && player.points > 10000) {
-            spawnEnemy(EnemyType.VADER, elapsedTime);
+            enemies.push(new Vader(canvas.width, Math.random() * (canvas.height - 100)));
         }
     }
     if (currentTime - lastObjectSpawnTime >= 5000 + Math.random() * 5000) {
@@ -840,7 +229,7 @@ window.addEventListener('keyup', (e) => {
     keysPressed.delete(e.key);
 });
 
-function gameEnd(win: boolean) {
+export function gameEnd(win: boolean) {
     gameOver = true;
     let opacity = 0;
     const message = win ? 'SCHNAPP! Darth Vader ist besiegt!' : 'Game Over :(';
@@ -913,8 +302,9 @@ function resetGame() {
     player.bullets = [];
     gameStartTime = Date.now();
 
-    enemies = [];
-    objects = [];
+    //clear enemies and objects
+    enemies.length = 0;
+    objects.length = 0;
     gameOver = false;
 }
 
