@@ -7,6 +7,7 @@ import { StarDest } from './StarDest.js';
 import { Vader } from './Vader.js';
 import { Star } from './Star.js';
 import { Explosion } from './Explosion.js';
+import { Bullet } from './Bullet.js';
 
 console.log('May the pike be with you!');
 
@@ -61,6 +62,8 @@ export const explosions: Explosion[] = [];
 
 // Initialize enemies
 export const enemies: Enemy[] = [];
+
+export const bullets: Bullet[] = [];
 
 // Initialize objects
 export const objects: GameObject[] = [];
@@ -123,6 +126,8 @@ function update() {
     // Move objects and enemies
     objects.forEach(obj => obj.update());
 
+    bullets.forEach(bullet => bullet.update());
+
     // Catch your Disc!
     const outObj = objects.filter(obj => obj.isOutOfScreen());
     if (outObj.some(obj => obj.type === GameObjectType.DISC)) {
@@ -177,11 +182,11 @@ function spawn() {
             enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 20, strength));
             lastSTSpawnTime = currentTime;
         }
-        if (elapsedTime > 60000 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
+        if (elapsedTime > 0 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
             enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50) + 20));
             lastTieSpawnTime = currentTime;
         }
-        if (elapsedTime > 120000 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
+        if (elapsedTime > 0 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
             enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
             lastSDSpawnTime = currentTime;
         }
@@ -207,6 +212,8 @@ function draw() {
 
     stars.forEach(star => star.draw(ctx));
     explosions.forEach(explosion => explosion.draw(ctx));
+
+    bullets.forEach(bullet => bullet.draw(ctx));
 
     player.draw(ctx);
 
@@ -336,7 +343,6 @@ function resetGame() {
     player.canGrab = false;
     player.boom = 1;
     player.dakka = 1;
-    player.bullets = [];
     player.shields = 0;
     player.energy = 10;
     gameStartTime = Date.now();

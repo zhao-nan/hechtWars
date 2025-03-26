@@ -1,6 +1,6 @@
 import { Bullet } from './Bullet.js';
 import { GameObjectType, rareObjectTypes } from './GameObject.js';
-import { canvas, explosions, objects, enemies } from './hecht.js';
+import { canvas, explosions, objects, enemies, bullets } from './hecht.js';
 import { Explosion } from './Explosion.js';
 export class Player {
     constructor() {
@@ -9,7 +9,6 @@ export class Player {
         this.width = 60;
         this.height = 35;
         this.speed = 5;
-        this.bullets = [];
         this.isGrabbing = false;
         this.lastShotTime = 0;
         this.lastDiscTime = 0;
@@ -37,7 +36,7 @@ export class Player {
     shoot() {
         const currentTime = Date.now();
         if (currentTime - this.lastShotTime >= 1000 / this.dakka) {
-            this.bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2, (this.boom + 8) / 2, 2 + this.dakka, true, false, this.boom));
+            bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2, (this.boom + 8) / 2, 2 + this.dakka, 0, true, false, this.boom));
             this.lastShotTime = currentTime;
             this.isShooting = true;
             setTimeout(() => this.isShooting = false, 100);
@@ -47,7 +46,7 @@ export class Player {
         const currentTime = Date.now();
         if (currentTime - this.lastDiscTime >= 1000) {
             if (this.inventory.some(item => item.type === GameObjectType.DISC)) {
-                this.bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2, 20, 5 + (this.energy / 10), true, true, 25 + this.energy));
+                bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2, 20, 5 + (this.energy / 10), 0, true, true, 25 + this.energy));
                 const discIndex = this.inventory.findIndex(item => item.type === GameObjectType.DISC);
                 if (discIndex !== -1) {
                     this.inventory.splice(discIndex, 1);
@@ -118,40 +117,11 @@ export class Player {
         }
     }
     update() {
-        // Update bullets
-        this.bullets.forEach(bullet => {
-            bullet.x += bullet.speed;
-        });
-        // Remove bullets that are off-screen
-        this.bullets = this.bullets.filter(bullet => bullet.x < canvas.width);
         // Check for collisions with enemies
         enemies.forEach(enemy => {
             if (enemy.isCollidingWith(this)) {
                 enemy.collide();
             }
-            enemy.bullets.forEach(bullet => {
-                if (this.isHitBy(bullet)) {
-                    if (this.shields > 0) {
-                        this.shields = Math.max(0, this.shields - bullet.damage);
-                        this.shieldFlash = true;
-                        setTimeout(() => this.shieldFlash = false, 100);
-                    }
-                    else {
-                        this.loseLife(bullet.damage);
-                    }
-                    enemy.bullets.splice(enemy.bullets.indexOf(bullet), 1);
-                }
-            });
-            this.bullets.forEach(bullet => {
-                if (enemy.isHitBy(bullet)) {
-                    enemy.lives -= bullet.damage;
-                    if (enemy.lives <= 0) {
-                        enemy.die();
-                    }
-                    // Remove bullet
-                    this.bullets.splice(this.bullets.indexOf(bullet), 1);
-                }
-            });
         });
         // Grab objects
         this.canGrab = false;
@@ -183,7 +153,6 @@ export class Player {
             ctx.lineWidth = 2;
             ctx.stroke();
         }
-        this.bullets.forEach(bullet => bullet.draw(ctx));
         // Draw shield flash
         if (this.shieldFlash) {
             ctx.beginPath();

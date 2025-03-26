@@ -1,6 +1,6 @@
 import { Enemy } from './Enemy.js';
 import { Bullet } from './Bullet.js';
-import { canvas, player, objects, } from './hecht.js';
+import { canvas, player, objects, bullets } from './hecht.js';
 import { GameObject, GameObjectType } from './GameObject.js';
 export class Tiefighter extends Enemy {
     constructor(x, y) {
@@ -15,8 +15,8 @@ export class Tiefighter extends Enemy {
     shoot() {
         const now = Date.now();
         if (now - this.lastShotTime > Math.random() * 1000 + 1750) {
-            const bullet = new Bullet(this.x + this.width / 2, this.y + this.height, 4, this.speed * (-1) - 3, false, false, 1);
-            this.bullets.push(bullet);
+            const bullet = new Bullet(this.x - 2, this.y + this.height, 4, this.speed * (-1) - 3, 0, false, false, 1);
+            bullets.push(bullet);
             this.lastShotTime = now;
         }
     }

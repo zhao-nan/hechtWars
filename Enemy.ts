@@ -13,7 +13,6 @@ export abstract class Enemy {
     initLives: number;
     lives: number;
     image: HTMLImageElement;
-    bullets: Bullet[] = [];
     lastShotTime: number = 0;
     lastSpawnTime: number = 0;
 
@@ -23,7 +22,6 @@ export abstract class Enemy {
         this.yspeed = 0;
         this.lastShotTime = Date.now();
         this.lastSpawnTime = Date.now();
-        this.bullets = [];
         this.image = new Image();
     }
 
@@ -35,8 +33,6 @@ export abstract class Enemy {
         this.special();
 
         this.changeDirection();        
-        
-        this.bullets.forEach(bullet => bullet.update());
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -55,10 +51,9 @@ export abstract class Enemy {
         ctx.fillRect(barX, barY, barWidth, barHeight);
 
         // Draw the foreground of the life bar
-        const lifePercentage = this.lives / this.initLives; // Assuming max lives is 10
+        const lifePercentage = this.lives / this.initLives;
         ctx.fillStyle = 'green';
         ctx.fillRect(barX, barY, barWidth * lifePercentage, barHeight);
-        this.bullets.forEach(bullet => bullet.draw(ctx));
     }
 
     abstract special();

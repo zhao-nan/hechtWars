@@ -1,5 +1,5 @@
 import { Bullet } from './Bullet.js';
-import { canvas, enemies, player, explosions, gameEnd } from './hecht.js';
+import { canvas, enemies, player, explosions, gameEnd, bullets } from './hecht.js';
 import { Stormtrooper } from './Stormtrooper.js';
 import { Tiefighter } from './Tiefighter.js';
 import { Explosion } from './Explosion.js';
@@ -22,8 +22,9 @@ export class Vader extends Enemy {
     shoot() {
         const now = Date.now();
         if (now - this.lastShotTime > Math.random() * 1000 + 2000) {
-            const bullet = new Bullet(this.x + this.width / 2, this.y + this.height / 2, 5, Math.random()*(-10) - 4, false, false, 3);
-            this.bullets.push(bullet);
+            const bullet = new Bullet(this.x - 6, this.y + this.height / 2, 10,
+                 Math.random()*(-10) - 4, 0, false, false, 3);
+            bullets.push(bullet);
             this.lastShotTime = now;
         }
     }

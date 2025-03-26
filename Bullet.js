@@ -1,15 +1,39 @@
+import { enemies, bullets, player } from "./hecht.js";
 export class Bullet {
-    constructor(x, y, radius, speed, friendly, disc, damage = 1) {
+    constructor(x, y, radius, xspeed, yspeed, friendly, disc, damage = 1) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.speed = speed;
+        this.xspeed = xspeed;
+        this.yspeed = yspeed;
         this.friendly = friendly;
         this.disc = disc;
         this.damage = damage;
     }
     update() {
-        this.x += this.speed;
+        this.x += this.xspeed;
+        this.y += this.yspeed;
+        enemies.forEach(enemy => {
+            if (enemy.isHitBy(this)) {
+                enemy.lives -= this.damage;
+                if (enemy.lives <= 0) {
+                    enemy.die();
+                }
+                // Remove bullet
+                bullets.splice(bullets.indexOf(this), 1);
+            }
+        });
+        if (player.isHitBy(this)) {
+            if (player.shields > 0) {
+                player.shields = Math.max(0, player.shields - this.damage);
+                player.shieldFlash = true;
+                setTimeout(() => player.shieldFlash = false, 100);
+            }
+            else {
+                player.loseLife(this.damage);
+            }
+            bullets.splice(bullets.indexOf(this), 1);
+        }
     }
     draw(ctx) {
         if (this.disc) {
