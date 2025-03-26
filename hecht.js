@@ -9,7 +9,7 @@ console.log('May the pike be with you!');
 // Initialize the canvas and context
 export const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-export const player = new Player(canvas, 50, canvas.height / 2 - 25, 60, 35, 5);
+export const player = new Player();
 let lastSDSpawnTime = 0;
 let lastSTSpawnTime = 0;
 let lastTieSpawnTime = 0;
@@ -57,7 +57,7 @@ function spawnObject() {
     const y = Math.random() * (canvas.height - 55) + 25;
     let type;
     let availableNormalTypes = normalObjectTypes;
-    if (player.lives == 5)
+    if (player.lives == 5 && player.energy >= 80)
         availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.SCHNAPPS);
     if (player.shields == 5)
         availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.SHIELD);
@@ -79,6 +79,13 @@ function spawnObject() {
     }
     objects.push(new GameObject(x, y, type));
 }
+function drawEnergyBar(ctx, player) {
+    const energyBar = document.getElementById('energy-bar');
+    const energyHeight = player.energy; // Percentage
+    if (energyBar) {
+        energyBar.style.height = `${energyHeight}%`;
+    }
+}
 function update() {
     if (player.lives <= 0) {
         gameEnd(false);
@@ -90,27 +97,11 @@ function update() {
             explosions.splice(i, 1);
         }
     }
-    if (keysPressed.has('ArrowUp')) {
-        player.moveUp();
-    }
-    if (keysPressed.has('ArrowDown')) {
-        player.moveDown();
-    }
-    if (keysPressed.has(' ')) {
-        player.shoot();
-    }
-    // Check for grabbing objects
-    if (keysPressed.has('Enter')) {
-        player.grab();
-    }
-    else {
-        player.release();
-    }
-    if (keysPressed.has('d')) {
-        player.throwDisc();
-    }
+    playerInput();
     player.update();
     spawn();
+    // Draw energy bar
+    drawEnergyBar(ctx, player);
     // Move objects and enemies
     objects.forEach(obj => obj.update());
     // Catch your Disc!
@@ -131,17 +122,38 @@ function update() {
         }
     }
 }
+function playerInput() {
+    if (keysPressed.has('ArrowUp')) {
+        player.moveUp();
+    }
+    if (keysPressed.has('ArrowDown')) {
+        player.moveDown();
+    }
+    if (keysPressed.has(' ')) {
+        player.shoot();
+    }
+    // Check for grabbing objects
+    if (keysPressed.has('Enter')) {
+        player.grab();
+    }
+    else {
+        player.release();
+    }
+    if (keysPressed.has('d')) {
+        player.throwDisc();
+    }
+}
 function spawn() {
     const currentTime = Date.now();
     const elapsedTime = currentTime - gameStartTime;
-    const strength = elapsedTime / 60000;
+    const strength = Math.floor(elapsedTime / 60000);
     if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50), strength));
+            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 20, strength));
             lastSTSpawnTime = currentTime;
         }
         if (elapsedTime > 60000 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50)));
+            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50) + 20));
             lastTieSpawnTime = currentTime;
         }
         if (elapsedTime > 120000 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
@@ -259,13 +271,14 @@ function resetGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     player.x = 50;
     player.y = canvas.height / 2 - 25;
-    player.lives = 3;
+    player.lives = 2;
     player.points = 0;
     player.inventory = [];
     player.canGrab = false;
     player.boom = 1;
     player.dakka = 1;
     player.bullets = [];
+    player.shields = 0;
     gameStartTime = Date.now();
     //clear enemies and objects
     enemies.length = 0;

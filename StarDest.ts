@@ -23,14 +23,14 @@ export class StarDest extends Enemy {
         }
     }
 
-    special() {}
+    special() {return;}
 
-    changeDirection() {}
+    changeDirection() {return;}
     
     collide() {
         player.loseLife(4);
         this.die();
     }
 
-    escape() {}
+    escape() {return;}
 }

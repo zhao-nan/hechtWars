@@ -8,11 +8,12 @@ export class Vader extends Enemy {
     constructor(x, y) {
         super(x, y);
         this.numOfWaves = 0;
-        this.lives = 750;
+        this.lives = 1000;
         this.initLives = this.lives;
         this.speed = 0.1;
         this.width = 100;
         this.height = 100;
+        this.image.src = 'img/vader.png';
     }
     shoot() {
         const now = Date.now();
@@ -28,7 +29,7 @@ export class Vader extends Enemy {
             let rand = Math.random();
             for (let i = 0; i < Math.floor(rand * 22) + 3; i++) {
                 if (rand >= 0.5) {
-                    enemies.push(new Stormtrooper(canvas.width, Math.random() * canvas.height - 50, this.numOfWaves));
+                    enemies.push(new Stormtrooper(canvas.width, Math.random() * canvas.height - 50, 5 + this.numOfWaves));
                 }
                 else {
                     enemies.push(new Tiefighter(canvas.width, Math.random() * canvas.height - 50));
@@ -53,7 +54,7 @@ export class Vader extends Enemy {
         }
         this.y += this.yspeed;
     }
-    escape() { }
+    escape() { return; }
     die() {
         super.die();
         explosions.push(new Explosion(this.x, this.y, this.width + 50, this.height + 50));

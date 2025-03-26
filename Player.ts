@@ -24,13 +24,14 @@ export class Player {
     shieldFlash: boolean;
     damageFlash: boolean;
     isShooting: boolean;
+    energy: number;
 
-    constructor(canvas: HTMLCanvasElement, x: number, y: number, width: number, height: number, speed: number) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.speed = speed;
+    constructor() {
+        this.x = 50;
+        this.y = canvas.height / 2 + 25;
+        this.width = 60;
+        this.height = 35;
+        this.speed = 5;
         this.bullets = [];
         this.isGrabbing = false;
         this.lastShotTime = 0;
@@ -45,6 +46,7 @@ export class Player {
         this.shieldFlash = false;
         this.damageFlash = false;
         this.isShooting = false;
+        this.energy = 10;
     }
 
     moveUp() {
@@ -71,15 +73,16 @@ export class Player {
 
     throwDisc() {
         const currentTime = Date.now();
-        if (currentTime - this.lastDiscTime >= 200) {
+        if (currentTime - this.lastDiscTime >= 1000) {
             if (this.inventory.some(item => item.type === GameObjectType.DISC)) {
                 this.bullets.push(
                     new Bullet(this.x + this.width, this.y + this.height / 2
-                        , 20, 10 + (this.dakka / 2), true, true, 50 + this.boom * 3));
+                        , 20, 5 + (this.energy / 10), true, true, 25 + this.energy));
                 const discIndex = this.inventory.findIndex(item => item.type === GameObjectType.DISC);
                 if (discIndex !== -1) {
                     this.inventory.splice(discIndex, 1);
                 }
+                this.getEnergy(-10);
                 this.lastDiscTime = currentTime;
                 this.isShooting = true;
                 setTimeout(() => this.isShooting = false, 200);
@@ -101,7 +104,12 @@ export class Player {
         } else {
             switch (obj.type) {
                 case GameObjectType.SCHNAPPS:
-                    if (this.lives < 5) this.lives += 1;
+                    if (this.lives < 5) {
+                        this.lives += 1;
+                        this.getEnergy(5);
+                    } else {
+                        this.getEnergy(10);
+                    }
                     break;
                 case GameObjectType.BLASTER:
                     this.boom += 1;
@@ -218,5 +226,11 @@ export class Player {
             ctx.lineWidth = 3;
             ctx.stroke();
         }
+    }
+
+    getEnergy(x: number) {
+        this.energy += x;
+        if (this.energy > 100) this.energy = 100;
+        if (this.energy < 0) this.energy = 0;
     }
 }

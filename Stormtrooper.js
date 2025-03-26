@@ -10,11 +10,15 @@ export class Stormtrooper extends Enemy {
         this.image.src = 'img/stormtrooper.png';
         this.initLives = this.lives;
     }
-    shoot() { }
-    special() { }
-    changeDirection() { }
+    shoot() { return; }
+    special() { return; }
+    changeDirection() { return; }
     escape() {
-        player.points -= 100;
+        player.getEnergy(-10);
+    }
+    die() {
+        super.die();
+        player.getEnergy(this.initLives);
     }
     collide() {
         player.loseLife(1);

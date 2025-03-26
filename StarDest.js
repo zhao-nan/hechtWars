@@ -19,12 +19,12 @@ export class StarDest extends Enemy {
             this.lastShotTime = now;
         }
     }
-    special() { }
-    changeDirection() { }
+    special() { return; }
+    changeDirection() { return; }
     collide() {
         player.loseLife(4);
         this.die();
     }
-    escape() { }
+    escape() { return; }
 }
 //# sourceMappingURL=StarDest.js.map

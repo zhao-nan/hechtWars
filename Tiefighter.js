@@ -1,6 +1,6 @@
 import { Enemy } from './Enemy.js';
 import { Bullet } from './Bullet.js';
-import { canvas, player, objects } from './hecht.js';
+import { canvas, player, objects, } from './hecht.js';
 import { GameObject, GameObjectType } from './GameObject.js';
 export class Tiefighter extends Enemy {
     constructor(x, y) {
@@ -20,8 +20,8 @@ export class Tiefighter extends Enemy {
             this.lastShotTime = now;
         }
     }
-    special() { }
-    escape() { }
+    special() { return; }
+    escape() { return; }
     collide() {
         player.loseLife(1);
         this.die();
@@ -30,28 +30,7 @@ export class Tiefighter extends Enemy {
         super.die();
         let irand = Math.random();
         if (irand > 0.5) {
-            let t;
-            switch (Math.floor(Math.random() * 3)) {
-                case 0:
-                    if (this.lives < 5) {
-                        t = GameObjectType.SCHNAPPS;
-                    }
-                    else {
-                        t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
-                    }
-                    break;
-                case 1:
-                    if (player.shields < 5) {
-                        t = GameObjectType.SHIELD;
-                    }
-                    else {
-                        t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
-                    }
-                    break;
-                case 2:
-                    t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
-                    break;
-            }
+            const t = this.chooseObjType(irand);
             objects.push(new GameObject(this.x, this.y, t));
         }
     }
@@ -70,6 +49,31 @@ export class Tiefighter extends Enemy {
             this.yspeed = 0.3;
         }
         this.y += this.yspeed;
+    }
+    chooseObjType(irand) {
+        let t;
+        switch (Math.floor(Math.random() * 3)) {
+            case 0:
+                if (player.lives < 5) {
+                    t = GameObjectType.SCHNAPPS;
+                }
+                else {
+                    t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                }
+                break;
+            case 1:
+                if (player.shields < 5) {
+                    t = GameObjectType.SHIELD;
+                }
+                else {
+                    t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                }
+                break;
+            case 2:
+                t = irand > 0.75 ? GameObjectType.BLASTER : GameObjectType.SPEEDUP;
+                break;
+        }
+        return t;
     }
 }
 //# sourceMappingURL=Tiefighter.js.map

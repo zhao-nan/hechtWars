@@ -13,14 +13,19 @@ export class Stormtrooper extends Enemy {
         this.initLives = this.lives;
     }
 
-    shoot() {}
+    shoot() {return;}
 
-    special() {}
+    special() {return;}
 
-    changeDirection() {}
+    changeDirection() {return;}
 
     escape() {
-        player.points -= 100;
+        player.getEnergy(-10);
+    }
+
+    die() {
+        super.die();
+        player.getEnergy(this.initLives);
     }
 
     collide() {
