@@ -188,15 +188,15 @@ function spawn() {
 
     if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 30) + 20, strength));
+            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 100) + 20, strength));
             lastSTSpawnTime = currentTime;
         }
         if (elapsedTime > tieStart && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 30) + 20));
+            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50) + 20));
             lastTieSpawnTime = currentTime;
         }
         if (elapsedTime > sdStart && currentTime - lastSDSpawnTime >= 8000 + Math.random() * 5000) {
-            enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
+            enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 150), strength));
             lastSDSpawnTime = currentTime;
         }
         if (elapsedTime > vaderSpawnTime
@@ -261,7 +261,7 @@ function updateStatusBar() {
     const raresContainer = document.getElementById('rares-container');
     if (raresContainer) {
         raresContainer.innerHTML = '';
-        player.inventory.filter(item => specialObjectTypes.includes(item.type)).forEach(item => {
+        player.inventory.filter(item => rareObjectTypes.includes(item.type)).forEach(item => {
             const rareImage = document.createElement('img');
             rareImage.src = item.image.src;
             rareImage.style.width = item.width.toString() + 'px';
