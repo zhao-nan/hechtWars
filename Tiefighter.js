@@ -15,7 +15,7 @@ export class Tiefighter extends Enemy {
     shoot() {
         const now = Date.now();
         if (now - this.lastShotTime > Math.random() * 1000 + 1750) {
-            const bullet = new Bullet(this.x - 2, this.y + this.height, 4, this.speed * (-1) - 3, 0, false, false, 1);
+            const bullet = new Bullet(this.x - 12, this.y + this.height, 9, this.speed * (-1) - 3, 0, false, false, 1);
             bullets.push(bullet);
             this.lastShotTime = now;
         }
@@ -23,6 +23,7 @@ export class Tiefighter extends Enemy {
     special() { return; }
     escape() { return; }
     collide() {
+        player.getEnergy(-this.initLives);
         player.loseLife(1);
         this.die();
     }

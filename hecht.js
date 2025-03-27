@@ -17,6 +17,7 @@ let lastObjectSpawnTime = 0;
 let gameStartTime = Date.now();
 let gameOver = false;
 let gameStarted = false;
+let vaderSpawnTime = Math.random() * 120000 + 200000;
 // Function to display the start screen
 function drawStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -152,18 +153,18 @@ function spawn() {
     const strength = Math.floor(elapsedTime / 60000);
     if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 20, strength));
+            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 30) + 20, strength));
             lastSTSpawnTime = currentTime;
         }
-        if (elapsedTime > 60000 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50) + 20));
+        if (elapsedTime > 0 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
+            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 30) + 20));
             lastTieSpawnTime = currentTime;
         }
-        if (elapsedTime > 120000 && currentTime - lastSDSpawnTime >= 5000 + Math.random() * 5000) {
+        if (elapsedTime > 0 && currentTime - lastSDSpawnTime >= 8000 + Math.random() * 5000) {
             enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
             lastSDSpawnTime = currentTime;
         }
-        if (elapsedTime > 240000
+        if (elapsedTime > vaderSpawnTime
             && !enemies.some(e => e instanceof Vader)
             && player.inventory.some(item => item.type === GameObjectType.LEIA)
             && player.inventory.some(item => item.type === GameObjectType.SABER)

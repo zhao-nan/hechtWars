@@ -60,7 +60,7 @@ export class Player {
         if (currentTime - this.lastShotTime >= 1000 / this.dakka) {
             bullets.push(
                 new Bullet(this.x + this.width, this.y + this.height / 2,
-                    (this.boom + 8)/2, 2 + this.dakka, 0, true, false, this.boom));
+                    4 + (this.boom + 6)/2, 2 + this.dakka, 0, true, false, this.boom));
             this.lastShotTime = currentTime;
             this.isShooting = true;
             setTimeout(() => this.isShooting = false, 100);
@@ -97,6 +97,7 @@ export class Player {
     addToInventory(obj: GameObject) {
         if (rareObjectTypes.some(t => t === obj.type)) {
             this.inventory.push(obj);
+            this.getEnergy(75);
         } else {
             switch (obj.type) {
                 case GameObjectType.SCHNAPPS:
@@ -104,17 +105,17 @@ export class Player {
                         this.lives += 1;
                         this.getEnergy(5);
                     } else {
-                        this.getEnergy(10);
+                        this.getEnergy(20);
                     }
                     break;
                 case GameObjectType.BLASTER:
                     this.boom += 1;
                     break;
                 case GameObjectType.SPEEDUP:
-                    this.dakka += 2/10;
+                    this.dakka += 1.5/10;
                     break;
                 case GameObjectType.SHIELD:
-                    if (this.shields < 5) this.shields += 1;
+                    this.shields += 1;
                     break;
                 case GameObjectType.DISC:
                     this.inventory.push(obj);

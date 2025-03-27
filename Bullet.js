@@ -42,9 +42,20 @@ export class Bullet {
             ctx.drawImage(img, this.x, this.y, this.radius, this.radius);
         }
         else {
-            ctx.fillStyle = this.friendly ? 'teal' : 'red';
+            // Outer layer (darkest)
+            ctx.fillStyle = this.friendly ? '#000080' : '#800000'; // Dark blue or dark red
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius / 2, 0, 2 * Math.PI);
+            ctx.fill();
+            // Middle layer (medium color)
+            ctx.fillStyle = this.friendly ? '#0000FF' : '#FF0000'; // Blue or red
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius / 3, 0, 2 * Math.PI);
+            ctx.fill();
+            // Inner layer (white)
+            ctx.fillStyle = '#FFFFFF'; // White
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius / 6, 0, 2 * Math.PI);
             ctx.fill();
         }
     }

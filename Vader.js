@@ -18,7 +18,7 @@ export class Vader extends Enemy {
     shoot() {
         const now = Date.now();
         if (now - this.lastShotTime > Math.random() * 1000 + 2000) {
-            const bullet = new Bullet(this.x - 6, this.y + this.height / 2, 10, Math.random() * (-10) - 4, 0, false, false, 3);
+            const bullet = new Bullet(this.x - 8, this.y + this.height / 2, 15, Math.random() * (-10) - 4, 0, false, false, 3);
             bullets.push(bullet);
             this.lastShotTime = now;
         }

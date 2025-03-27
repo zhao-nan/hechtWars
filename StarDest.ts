@@ -25,7 +25,7 @@ export class StarDest extends Enemy {
         const now = Date.now();
         if (now - this.lastShotTime > Math.random() * 5000 + 2000) {
             explosions.push(new Explosion(this.x - 30, this.y + this.height/2, 1, 1));
-            const bullet = new Bullet(this.x - 5, this.y + this.height / 2, 8, -4, 0, false, false, 3);
+            const bullet = new Bullet(this.x - 20, this.y + this.height / 2, 15, -4, 0, false, false, 3);
             bullets.push(bullet);
             this.lastShotTime = now;
         }
@@ -37,7 +37,7 @@ export class StarDest extends Enemy {
             this.hasSpecial = false;
             explosions.push(new Explosion(this.x - 100, this.y, 100, 100));
             for (let i = 0; i < 10; i++) {
-                const bullet = new Bullet(this.x - 5, this.y + this.height / 2, 5,
+                const bullet = new Bullet(this.x - 5, this.y + this.height / 2, 9,
                     Math.random()*(-4) - 4, Math.random()*(3) - 1.5, false, false, 1);
                 bullets.push(bullet);
             }
@@ -49,6 +49,12 @@ export class StarDest extends Enemy {
     collide() {
         player.loseLife(4);
         this.die();
+    }
+
+    die() {
+        super.die();
+        explosions.push(new Explosion(this.x, this.y, 200, 200));
+        explosions.push(new Explosion(this.x + Math.random()*100-50, this.y + Math.random()*100-50, 100, 100));
     }
 
     escape() {return;}
