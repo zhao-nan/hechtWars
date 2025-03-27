@@ -1,4 +1,4 @@
-import { GameObject, GameObjectType, rareObjectTypes, normalObjectTypes, specialObjectTypes } from './GameObject.js';
+import { GameObject, GameObjectType, rareObjectTypes, normalObjectTypes} from './GameObject.js';
 import { Player } from './Player.js';
 import { Enemy} from './Enemy.js';
 import { Stormtrooper } from './Stormtrooper.js';
