@@ -1,4 +1,4 @@
-import { GameObject, GameObjectType, rareObjectTypes, normalObjectTypes } from './GameObject.js';
+import { GameObject, GameObjectType, rareObjectTypes, normalObjectTypes, specialObjectTypes } from './GameObject.js';
 import { Player } from './Player.js';
 import { Enemy} from './Enemy.js';
 import { Stormtrooper } from './Stormtrooper.js';
@@ -23,6 +23,8 @@ let lastObjectSpawnTime = 0;
 let gameStartTime = Date.now();
 let gameOver = false;
 let gameStarted = false;
+let tieStart = Math.random() * 20000 + 50000;
+let sdStart = Math.random() * 40000 + 100000;
 let vaderSpawnTime = Math.random() * 120000 + 200000;
 
 // Function to display the start screen
@@ -171,6 +173,12 @@ function playerInput() {
     if (keysPressed.has('d')) {
         player.throwDisc();
     }
+    // if a number key is pressed, use the corresponding item
+    for (let i = 1; i <= 5; i++) {
+        if (keysPressed.has(i.toString())) {
+            player.activateSpecial(i - 1);
+        }
+    }
 }
 
 function spawn() {
@@ -183,11 +191,11 @@ function spawn() {
             enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 30) + 20, strength));
             lastSTSpawnTime = currentTime;
         }
-        if (elapsedTime > 0 && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
+        if (elapsedTime > tieStart && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
             enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 30) + 20));
             lastTieSpawnTime = currentTime;
         }
-        if (elapsedTime > 0 && currentTime - lastSDSpawnTime >= 8000 + Math.random() * 5000) {
+        if (elapsedTime > sdStart && currentTime - lastSDSpawnTime >= 8000 + Math.random() * 5000) {
             enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
             lastSDSpawnTime = currentTime;
         }
@@ -253,13 +261,34 @@ function updateStatusBar() {
     const raresContainer = document.getElementById('rares-container');
     if (raresContainer) {
         raresContainer.innerHTML = '';
-        player.inventory.filter(item => rareObjectTypes.includes(item.type)).forEach(item => {
+        player.inventory.filter(item => specialObjectTypes.includes(item.type)).forEach(item => {
             const rareImage = document.createElement('img');
             rareImage.src = item.image.src;
             rareImage.style.width = item.width.toString() + 'px';
             rareImage.style.height = item.height.toString() + 'px';
             raresContainer.appendChild(rareImage);
         });
+    }
+
+    const specialContainer = document.getElementById('special-container');
+    if (specialContainer) {
+        specialContainer.innerHTML = '';
+        player.specials.forEach(item => {
+            const specialImage = document.createElement('img');
+            specialImage.src = item.image.src;
+            specialImage.style.width = item.width.toString() + 'px';
+            specialImage.style.height = item.height.toString() + 'px';
+            specialContainer.appendChild(specialImage);
+        });
+    }
+}
+
+export function flashEnergyBar() {
+    const energyBar = document.getElementById('energy-bar');
+    const col = '#A5FF81';
+    if (energyBar) {
+        energyBar.style.backgroundColor = 'red';
+        setTimeout(() => energyBar.style.backgroundColor = col, 200);
     }
 }
  
@@ -341,6 +370,7 @@ function resetGame() {
     player.y = canvas.height / 2 - 25;
     player.lives = 2;
     player.inventory = [];
+    player.specials = [];
     player.canGrab = false;
     player.boom = 1;
     player.dakka = 1;
@@ -351,6 +381,8 @@ function resetGame() {
     //clear enemies and objects
     enemies.length = 0;
     objects.length = 0;
+    bullets.length = 0;
+    explosions.length = 0;
     gameOver = false;
 }
 

@@ -1,6 +1,6 @@
 import { Bullet } from './Bullet.js';
-import { GameObject, GameObjectType, rareObjectTypes} from './GameObject.js';
-import { canvas, explosions, objects, enemies, bullets} from './hecht.js';
+import { GameObject, GameObjectType, rareObjectTypes, specialObjectTypes} from './GameObject.js';
+import { canvas, explosions, objects, enemies, bullets, flashEnergyBar} from './hecht.js';
 import { Explosion } from './Explosion.js';
 
 
@@ -13,15 +13,19 @@ export class Player {
     isGrabbing: boolean;
     lastShotTime: number;
     lastDiscTime: number;
+    lastSpecialTime: number;
     lives: number;
     inventory: GameObject[];
+    specials: GameObject[];
     canGrab: boolean;
     boom: number;
     dakka: number;
     shields: number;
     shieldFlash: boolean;
+    beamFlash: boolean;
     damageFlash: boolean;
     isShooting: boolean;
+    invincible: boolean;
     energy: number;
 
     constructor() {
@@ -33,16 +37,20 @@ export class Player {
         this.isGrabbing = false;
         this.lastShotTime = 0;
         this.lastDiscTime = 0;
+        this.lastSpecialTime = Date.now();
         this.lives = 2;
         this.inventory = [];
+        this.specials = [];
         this.canGrab = false;
         this.boom = 1;
         this.dakka = 1;
         this.shields = 0;
         this.shieldFlash = false;
         this.damageFlash = false;
+        this.beamFlash = false;
         this.isShooting = false;
         this.energy = 10;
+        this.invincible = false;
     }
 
     moveUp() {
@@ -98,6 +106,8 @@ export class Player {
         if (rareObjectTypes.some(t => t === obj.type)) {
             this.inventory.push(obj);
             this.getEnergy(75);
+        } else if (specialObjectTypes.some(t => t === obj.type)) {
+            this.specials.push(obj);
         } else {
             switch (obj.type) {
                 case GameObjectType.SCHNAPPS:
@@ -122,12 +132,79 @@ export class Player {
                     break;
             }
         }
-        this.inventory.sort((a, b) => {
-            if (a.type === GameObjectType.DISC) return 1;
-            if (b.type === GameObjectType.DISC) return -1;
-            return a.type - b.type;
-        });
     }
+
+    activateSpecial(i: number) {
+        if (Date.now() - this.lastSpecialTime < 1000) return;
+        if (this.energy < 50) {
+            flashEnergyBar();
+            return;
+        }
+        if (i >= this.specials.length) return;
+        const special = this.specials[i];
+        switch (special.type) {
+            case GameObjectType.SHIELDUP:
+                this.shields = 10;
+                this.shieldFlash = true;
+                setTimeout(() => this.shieldFlash = false, 200);
+                break;
+            case GameObjectType.LIFE:
+                this.lives = 5;
+                break;
+            case GameObjectType.BEAM:
+                // Trigger a flash effect
+                this.beamFlash = true;
+                setTimeout(() => this.beamFlash = false, 1000); // Flash lasts for 1 second
+                // Perform the beam animation and damage
+                enemies.forEach(enemy => {
+                    if (Math.abs(enemy.y + enemy.height/2 - (this.y + this.height/2)) <= 100) {
+                        enemy.takeDamage(this.boom + 50); // Apply damage
+                    }
+                });
+                this.createBeamEffect();
+                break;
+            case GameObjectType.INVINCIBLE:
+                this.invincible = true;
+                setTimeout(() => this.invincible = false, 20000);
+                break;
+            case GameObjectType.SPRAY:
+                for (let i = 0; i < 40; i++) {
+                    bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2,
+                        9, Math.random()*4 + 4, Math.random() * 4 - 2, true, false, this.boom + 5));
+                }
+                break;
+        }
+        this.lastSpecialTime = Date.now();
+        this.getEnergy(-50);
+        this.specials.splice(i, 1);
+    }
+
+    createBeamEffect() {
+        const beam = document.createElement('div');
+        beam.style.position = 'absolute';
+            // Get the canvas's position on the page
+        const canvas = document.getElementById('gameCanvas');
+        if (!canvas) return;
+        const canvasRect = canvas.getBoundingClientRect();
+
+        // Adjust the beam's position to start in front of the player
+        beam.style.left = `${canvasRect.left + this.x + this.width}px`; // Start at the player's right edge
+        beam.style.top = `${canvasRect.top + this.y + this.height / 2 - 5}px`; // Center the beam vertically on the player
+
+    
+        beam.style.width = '1000px'; // Length of the beam
+        beam.style.height = '10px'; // Thickness of the beam
+        beam.style.backgroundColor = '#00BFFF';
+        beam.style.boxShadow = '0 0 20px 5px #00BFFF';
+        beam.style.zIndex = '10';
+        document.body.appendChild(beam);
+    
+        // Remove the beam after the animation
+        setTimeout(() => {
+            document.body.removeChild(beam);
+        }, 500); // Beam lasts for 1 second
+    }
+
     isHitBy(bullet: Bullet) {
         return this.x < bullet.x + bullet.radius &&
                this.x + this.width > bullet.x &&
@@ -136,6 +213,7 @@ export class Player {
     }
 
     loseLife(l: number) {
+        if (this.invincible) return;
         this.lives -= l;
         this.damageFlash = true;
         setTimeout(() => this.damageFlash = false, 200);
@@ -172,6 +250,12 @@ export class Player {
         }
         if (this.damageFlash) {
             hechtImage.src = 'img/hecht-dmg.png';
+        }
+        if (this.invincible) {
+            hechtImage.src = 'img/hecht-invincible.png';
+        }
+        if (this.beamFlash) {
+            hechtImage.src = 'img/hecht-beam.png';
         }
         ctx.drawImage(hechtImage, this.x, this.y, this.width, this.height);
 

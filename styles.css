@@ -47,7 +47,7 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 25%;
+    width: 15%;
     border: solid palevioletred;
     border-radius: 5px;
 }
@@ -58,9 +58,20 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60%;
+    width: 50%;
 }
 #disc-container img {
+    margin: 0 10px;
+}
+#special-container {
+    height: 100%;
+    border-radius: 5px;
+    border: solid turquoise;
+    display: flex;
+    align-items: center;
+    width: 20%;
+}
+#special-container img {
     margin: 0 10px;
 }
 #rares-container {

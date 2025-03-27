@@ -66,6 +66,13 @@ export abstract class Enemy {
 
     abstract escape();
 
+    takeDamage(damage: number) {
+        this.lives -= damage;
+        if (this.lives <= 0) {
+            this.die();
+        }
+    }
+
     die() {
         enemies.splice(enemies.indexOf(this), 1);
         const explosion = new Explosion(this.x, this.y, this.width, this.height);

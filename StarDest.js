@@ -1,7 +1,8 @@
 import { Enemy } from './Enemy.js';
 import { Bullet } from './Bullet.js';
-import { explosions, player, bullets } from './hecht.js';
+import { explosions, player, bullets, objects } from './hecht.js';
 import { Explosion } from './Explosion.js';
+import { GameObject, specialObjectTypes } from './GameObject.js';
 export class StarDest extends Enemy {
     constructor(x, y, strength) {
         super(x, y);
@@ -45,6 +46,13 @@ export class StarDest extends Enemy {
         super.die();
         explosions.push(new Explosion(this.x, this.y, 200, 200));
         explosions.push(new Explosion(this.x + Math.random() * 100 - 50, this.y + Math.random() * 100 - 50, 100, 100));
+        // maybe drop a special
+        if (player.specials.length < 5 && Math.random() < 0.5) {
+            const availableSpecialTypes = specialObjectTypes.filter(t => !player.specials.some(item => item.type === t) &&
+                !objects.some(obj => obj.type === t));
+            const type = availableSpecialTypes[Math.floor(Math.random() * availableSpecialTypes.length)];
+            objects.push(new GameObject(this.x, this.y, type));
+        }
     }
     escape() { return; }
 }

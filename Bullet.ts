@@ -37,6 +37,7 @@ export class Bullet {
             }
         });
         if (player.isHitBy(this)) {
+            if (player.invincible) return;
             if (player.shields > 0) {
                 player.shields = Math.max(0, player.shields - this.damage);
                 player.shieldFlash = true;

@@ -1,7 +1,8 @@
 import { Player } from './Player.js';
-export enum GameObjectType {SCHNAPPS, SHIELD, LEIA, SABER, R2D2, YODA, BLASTER, SPEEDUP, DISC}
+export enum GameObjectType {SCHNAPPS, SHIELD, LEIA, SABER, R2D2, YODA, BLASTER, SPEEDUP, DISC, SHIELDUP, LIFE, BEAM, INVINCIBLE, SPRAY}
 export const rareObjectTypes = [GameObjectType.YODA, GameObjectType.R2D2, GameObjectType.LEIA, GameObjectType.SABER];
 export const normalObjectTypes = [GameObjectType.DISC, GameObjectType.SCHNAPPS, GameObjectType.BLASTER, GameObjectType.SPEEDUP, GameObjectType.SHIELD, GameObjectType.DISC];
+export const specialObjectTypes = [GameObjectType.SHIELDUP, GameObjectType.LIFE, GameObjectType.BEAM, GameObjectType.INVINCIBLE, GameObjectType.SPRAY];
 
 export class GameObject {
     x: number;
@@ -18,38 +19,7 @@ export class GameObject {
         this.height = 30;
         this.type = type;
         this.image = new Image();
-        switch (this.type) {
-            case GameObjectType.SCHNAPPS:
-                this.image.src = 'img/schnaps.png';
-                break;
-            case GameObjectType.SHIELD:
-                this.image.src = 'img/shield.png';
-                break;
-            case GameObjectType.LEIA:
-                this.image.src = 'img/leia.png';
-                break;
-            case GameObjectType.SABER:
-                this.image.src = 'img/lightsaber.png';
-                this.width = 50;
-                this.height = 40;
-                break;
-            case GameObjectType.R2D2:
-                this.image.src = 'img/r2d2.png';
-                this.width = 25;
-                break;
-            case GameObjectType.YODA:
-                this.image.src = 'img/yoda.png';
-                break;
-            case GameObjectType.BLASTER:
-                this.image.src = 'img/blaster.png';
-                break;
-            case GameObjectType.SPEEDUP:
-                this.image.src = 'img/speedcannon.png';
-                break;
-            case GameObjectType.DISC:
-                this.image.src = 'img/disc.png';
-                break;
-        }
+        this.image.src = 'img/' + GameObjectType[type].toLowerCase() + '.png';
     }
 
     update() {
