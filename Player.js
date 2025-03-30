@@ -27,6 +27,18 @@ export class Player {
         this.energy = 10;
         this.invincible = false;
     }
+    reset() {
+        this.x = 50;
+        this.y = canvas.height / 2 + 25;
+        this.lives = 2;
+        this.inventory = [];
+        this.specials = [];
+        this.boom = 1;
+        this.dakka = 1;
+        this.shields = 0;
+        this.energy = 10;
+        this.invincible = false;
+    }
     moveUp() {
         this.y -= this.speed;
         if (this.y < 20)
@@ -105,24 +117,26 @@ export class Player {
     activateSpecial(i) {
         if (Date.now() - this.lastSpecialTime < 1000)
             return;
-        if (this.energy < 50) {
-            flashEnergyBar();
-            return;
-        }
         if (i >= this.specials.length)
             return;
         const special = this.specials[i];
         switch (special.type) {
             case GameObjectType.SHIELDUP:
                 this.shields = 10;
+                this.getEnergy(50);
                 this.shieldFlash = true;
                 setTimeout(() => this.shieldFlash = false, 200);
                 break;
             case GameObjectType.LIFE:
+                this.getEnergy(100);
                 this.lives = 5;
                 break;
             case GameObjectType.BEAM:
                 // Trigger a flash effect
+                if (this.energy < 50) {
+                    flashEnergyBar();
+                    return;
+                }
                 this.beamFlash = true;
                 setTimeout(() => this.beamFlash = false, 1000); // Flash lasts for 1 second
                 // Perform the beam animation and damage
@@ -138,6 +152,10 @@ export class Player {
                 setTimeout(() => this.invincible = false, 20000);
                 break;
             case GameObjectType.SPRAY:
+                if (this.energy < 50) {
+                    flashEnergyBar();
+                    return;
+                }
                 for (let i = 0; i < 40; i++) {
                     bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2, 9, Math.random() * 4 + 4, Math.random() * 4 - 2, true, false, this.boom + 5));
                 }

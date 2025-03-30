@@ -317,18 +317,8 @@ document.addEventListener('keydown', function (event) {
 });
 function resetGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    player.x = 50;
-    player.y = canvas.height / 2 - 25;
-    player.lives = 2;
-    player.inventory = [];
-    player.specials = [];
-    player.canGrab = false;
-    player.boom = 1;
-    player.dakka = 1;
-    player.shields = 0;
-    player.energy = 10;
+    player.reset();
     gameStartTime = Date.now();
-    //clear enemies and objects
     enemies.length = 0;
     objects.length = 0;
     bullets.length = 0;
