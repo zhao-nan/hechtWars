@@ -61,9 +61,9 @@ function spawnObject() {
     const y = Math.random() * (canvas.height - 55) + 25;
     let type;
     let availableNormalTypes = normalObjectTypes;
-    if (player.lives == 5 && player.energy >= 80)
+    if (player.lives >= 5 && player.energy >= 80)
         availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.SCHNAPPS);
-    if (player.shields == 5)
+    if (player.shields >= 5)
         availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.SHIELD);
     if (player.inventory.filter(item => item.type === GameObjectType.DISC).length > 10)
         availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.DISC);
