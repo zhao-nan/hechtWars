@@ -142,9 +142,10 @@ export class Player {
                 // Perform the beam animation and damage
                 enemies.forEach(enemy => {
                     if (Math.abs(enemy.y + enemy.height / 2 - (this.y + this.height / 2)) <= 100) {
-                        enemy.takeDamage(this.boom + 50); // Apply damage
+                        enemy.takeDamage(this.boom + 200); // Apply damage
                     }
                 });
+                this.getEnergy(-20);
                 this.createBeamEffect();
                 break;
             case GameObjectType.INVINCIBLE:
@@ -159,10 +160,10 @@ export class Player {
                 for (let i = 0; i < 40; i++) {
                     bullets.push(new Bullet(this.x + this.width, this.y + this.height / 2, 9, Math.random() * 4 + 4, Math.random() * 4 - 2, true, false, this.boom + 5));
                 }
+                this.getEnergy(-50);
                 break;
         }
         this.lastSpecialTime = Date.now();
-        this.getEnergy(-50);
         this.specials.splice(i, 1);
     }
     createBeamEffect() {
