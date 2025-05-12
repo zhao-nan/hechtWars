@@ -68,7 +68,9 @@ function spawnObject() {
     if (player.inventory.filter(item => item.type === GameObjectType.DISC).length > 10)
         availableNormalTypes = availableNormalTypes.filter(t => t !== GameObjectType.DISC);
     const random = Math.random();
-    if (random < 0.1) {
+    const elapsedTime = Date.now() - gameStartTime;
+    const rareThreshold = elapsedTime / vaderSpawnTime;
+    if (random < 0.2 * rareThreshold) {
         const availableRareTypes = rareObjectTypes.filter(t => !player.inventory.some(item => item.type === t) &&
             !objects.some(obj => obj.type === t));
         if (availableRareTypes.length > 0) {
@@ -161,7 +163,7 @@ function spawn() {
     const strength = Math.floor(elapsedTime / 60000);
     if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 100) + 20, strength));
+            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 25, strength));
             lastSTSpawnTime = currentTime;
         }
         if (elapsedTime > tieStart && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
