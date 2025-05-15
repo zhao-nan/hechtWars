@@ -20,6 +20,7 @@ let gameStarted = false;
 let tieStart = Math.random() * 20000 + 50000;
 let sdStart = Math.random() * 40000 + 100000;
 let vaderSpawnTime = Math.random() * 120000 + 200000;
+let aKeyLocked = false;
 // Function to display the start screen
 function drawStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -137,7 +138,7 @@ function playerInput() {
     if (keysPressed.has('ArrowDown')) {
         player.moveDown();
     }
-    if (keysPressed.has(' ')) {
+    if (player.autofire || keysPressed.has(' ')) {
         player.shoot();
     }
     // Check for grabbing objects
@@ -149,6 +150,13 @@ function playerInput() {
     }
     if (keysPressed.has('d')) {
         player.throwDisc();
+    }
+    if (keysPressed.has('a') && !aKeyLocked) {
+        player.toggleAutofire();
+        aKeyLocked = true;
+        setTimeout(() => {
+            aKeyLocked = false;
+        }, 500);
     }
     // if a number key is pressed, use the corresponding item
     for (let i = 1; i <= 5; i++) {
@@ -163,19 +171,18 @@ function spawn() {
     const strength = Math.floor(elapsedTime / 60000);
     if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 25, strength));
+            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50), strength));
             lastSTSpawnTime = currentTime;
         }
         if (elapsedTime > tieStart && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 50) + 20));
+            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 25)));
             lastTieSpawnTime = currentTime;
         }
         if (elapsedTime > sdStart && currentTime - lastSDSpawnTime >= 8000 + Math.random() * 5000) {
-            enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 150), strength));
+            enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
             lastSDSpawnTime = currentTime;
         }
         if (elapsedTime > vaderSpawnTime
-            && !enemies.some(e => e instanceof Vader)
             && player.inventory.some(item => item.type === GameObjectType.LEIA)
             && player.inventory.some(item => item.type === GameObjectType.SABER)
             && player.inventory.some(item => item.type === GameObjectType.R2D2)

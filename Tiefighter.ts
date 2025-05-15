@@ -51,7 +51,7 @@ export class Tiefighter extends Enemy {
         } else if (rand == 1 && this.y > 25 && this.yspeed > -2) {
             this.yspeed -= 0.1;
         }
-        if (this.y > canvas.height - this.height) {
+        if (this.y > canvas.height - this.height - 5) {
             this.yspeed = -0.3;
         }
         if (this.y < 25) {

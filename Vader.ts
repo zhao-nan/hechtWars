@@ -35,9 +35,9 @@ export class Vader extends Enemy {
             let rand = Math.random();
             for (let i = 0; i < Math.floor(rand * 22) + 3; i++) {
                 if (rand >= 0.5) {
-                    enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50) + 25, 5 + this.numOfWaves));
+                    enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50), 5 + this.numOfWaves));
                 } else {
-                    enemies.push(new Tiefighter(canvas.width, Math.random() * canvas.height - 50));
+                    enemies.push(new Tiefighter(canvas.width, Math.random() * canvas.height - 25));
                 }
             }
             this.lastSpawnTime = now;

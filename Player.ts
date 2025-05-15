@@ -27,6 +27,7 @@ export class Player {
     isShooting: boolean;
     invincible: boolean;
     energy: number;
+    autofire: boolean;
 
     constructor() {
         this.x = 50;
@@ -51,6 +52,7 @@ export class Player {
         this.isShooting = false;
         this.energy = 10;
         this.invincible = false;
+        this.autofire = false;
     }
 
     reset() {
@@ -302,5 +304,9 @@ export class Player {
         this.energy += x;
         if (this.energy > 100) this.energy = 100;
         if (this.energy < 0) this.energy = 0;
+    }
+
+    toggleAutofire() {
+        this.autofire = !this.autofire;
     }
 }

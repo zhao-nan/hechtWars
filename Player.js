@@ -26,6 +26,7 @@ export class Player {
         this.isShooting = false;
         this.energy = 10;
         this.invincible = false;
+        this.autofire = false;
     }
     reset() {
         this.x = 50;
@@ -262,6 +263,9 @@ export class Player {
             this.energy = 100;
         if (this.energy < 0)
             this.energy = 0;
+    }
+    toggleAutofire() {
+        this.autofire = !this.autofire;
     }
 }
 //# sourceMappingURL=Player.js.map
