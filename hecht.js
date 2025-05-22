@@ -171,15 +171,15 @@ function spawn() {
     const strength = Math.floor(elapsedTime / 60000);
     if (!enemies.some(e => e instanceof Vader)) {
         if (currentTime - lastSTSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Stormtrooper(canvas.width, Math.random() * (canvas.height - 50), strength));
+            enemies.push(Stormtrooper.spawn(strength));
             lastSTSpawnTime = currentTime;
         }
         if (elapsedTime > tieStart && currentTime - lastTieSpawnTime >= 5000 + Math.random() * 5000) {
-            enemies.push(new Tiefighter(canvas.width, Math.random() * (canvas.height - 25)));
+            enemies.push(Tiefighter.spawn());
             lastTieSpawnTime = currentTime;
         }
         if (elapsedTime > sdStart && currentTime - lastSDSpawnTime >= 8000 + Math.random() * 5000) {
-            enemies.push(new StarDest(canvas.width, Math.random() * (canvas.height - 100), strength));
+            enemies.push(StarDest.spawn(strength));
             lastSDSpawnTime = currentTime;
         }
         if (elapsedTime > vaderSpawnTime

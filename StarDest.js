@@ -1,6 +1,6 @@
 import { Enemy } from './Enemy.js';
 import { Bullet } from './Bullet.js';
-import { explosions, player, bullets, objects } from './hecht.js';
+import { canvas, explosions, player, bullets, objects } from './hecht.js';
 import { Explosion } from './Explosion.js';
 import { GameObject, specialObjectTypes } from './GameObject.js';
 export class StarDest extends Enemy {
@@ -16,6 +16,12 @@ export class StarDest extends Enemy {
         this.image.src = 'img/star-destroyer.png';
         this.initTime = Date.now();
         this.cooldown = Math.random() * 10000;
+    }
+    static spawn(strength, x, y) {
+        const ix = (x) || canvas.width;
+        const iy = (y) || Math.random() * (canvas.height - 100);
+        const is = (strength) || Math.floor(Math.random() * 5) + 2;
+        return new StarDest(ix, iy, is);
     }
     shoot() {
         const now = Date.now();
