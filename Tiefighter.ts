@@ -15,6 +15,12 @@ export class Tiefighter extends Enemy {
         this.image.src = 'img/tie.png';
     }
 
+    static spawn(x?: number, y?: number) {
+        const ix = (x) || canvas.width;
+        const iy = (y) || Math.random() * (canvas.height - 20) + 10;
+        return new Tiefighter(ix, iy);
+    }
+
     shoot() {     
         const now = Date.now();
         if (now - this.lastShotTime > Math.random() * 1000 + 1750) { 
